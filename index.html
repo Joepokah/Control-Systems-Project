@@ -11,17 +11,277 @@
     <link href="styles/style.css" rel="stylesheet" type="text/css">
   </head>
   <body>
-    <h1>Now for the Matlab Code</h1>
-    <h1>Now for the Codes Themselves Below</h1>
+    <h1>https://www.youtube.com/watch?v=Pdds-HFtLuI&t=9s Matlab Video</h1>
+    <h1>https://youtu.be/Q5bLpXv3HnE</h1>
     <img src="images/firefox-icon.png" alt="INSERT MATLAB CODE HERE, + VIDEO LINK">
 
-    <p>What we learned</p>
     <p>Complete Source Code</p>
 
     <ul> <!-- changed to list in the tutorial -->
-      <li>How to build and model basic systems in VREP</li>
-      <li>Integration of different components</li>
-      <li>Analyzing results</li>
+      <li>Matlab 
+      close all;
+clear all;
+clc
+
+%initial position
+ee_x = 0; 
+ee_y = 30;
+ee_z = 0;
+
+%axis
+x_max = 105.0;
+x_min = -5.0;
+y_max = 105.0;
+y_min = -5.0;
+z_max = 105.0;
+z_min = -5.0;
+
+%frame
+fr_x0 = 0.0;
+fr_x1 = 100.0;
+fr_y0 = 0.0;
+fr_y1 = 100.0;
+fr_height = 20.0;
+fr_upper2_height = 20.0;
+
+%links
+link_x_offsetx = 0;
+link_x_offsety = 2.5;
+link_x_offsetz = 0;
+
+link_y_offsetx = 2.5;
+link_y_offsety = 0;
+link_y_offsetz = 40.0;
+
+link_z_length = link_y_offsetz+fr_upper2_height;
+link_z_offsetx = 2.5;
+
+link_x_stepspercm = 0.2;
+link_y_stepspercm = 0.2;
+link_z_stepspercm = 0.2;
+
+%motors
+motor_x_step = 360;
+motor_y_step = 360;
+motor_z_step = 360;
+
+motor_x_curstep = 0;
+motor_y_curstep = 0;
+motor_z_curstep = 0;
+
+motor_x_line_length = 10.0;
+motor_y_line_length = 10.0;
+motor_z_line_length = 10.0;
+
+%initial calculations
+
+link_x_height = fr_height;
+link_x_length = fr_x1 - fr_x0 + 2*link_x_offsetx;
+link_x_x0 = fr_x0-link_x_offsetx;
+link_x_x1 = fr_x1+link_x_offsetx;
+link_x_y0 = fr_y0-link_x_offsety;
+link_x_y1 = fr_y0-link_x_offsety; 
+link_x_z0 = link_x_height;
+link_x_z1 = link_x_height;
+link_x_steps = link_x_stepspercm*link_x_length*motor_x_step;
+
+ee_motor_x=(ee_x/link_x_length)*link_x_steps;
+ee_x = (ee_motor_x/link_x_steps)*link_x_length;
+motor_x_curstep = mod(ee_motor_x,motor_x_step);
+
+
+
+
+link_y_height = fr_height+link_y_offsetz;
+link_y_length = fr_y1 - fr_y0 + 2*link_y_offsety;
+link_y_x0 = (ee_motor_x/link_x_steps)*link_x_length+link_z_offsetx;
+link_y_x1 = (ee_motor_x/link_x_steps)*link_x_length+link_z_offsetx;
+link_y_y0 = fr_y0-link_y_offsety;
+link_y_y1 = fr_y1+link_y_offsety;
+link_y_z0 = link_y_height;
+link_y_z1 = link_y_height;
+link_y_steps = link_y_stepspercm*link_y_length*motor_y_step;
+
+ee_motor_y=(ee_y/link_y_length)*link_y_steps;
+ee_y = (ee_motor_y/link_y_steps)*link_y_length;
+motor_y_curstep = mod(ee_motor_y,motor_y_step);
+
+
+% motors
+motor_x_posx = fr_x1+link_x_offsetx;
+motor_x_posy = fr_y0-link_x_offsety;
+motor_x_posz = link_x_height;
+
+motor_y_posx = link_y_x0;
+motor_y_posy = link_y_y0;
+motor_y_posz = link_y_z0;
+
+motor_x_ang = -(motor_x_curstep/motor_x_step)*2.0*pi;
+motor_y_ang = (motor_y_curstep/motor_y_step)*2.0*pi;
+
+
+motor_x_line_x0 = motor_x_posx;
+motor_x_line_x1 = motor_x_posx;
+motor_x_line_y0 = motor_x_posy;
+motor_x_line_y1 = motor_x_posy+cos(motor_x_ang)*motor_x_line_length;
+motor_x_line_z0 = motor_x_posz;
+motor_x_line_z1 = motor_x_posz+sin(motor_x_ang)*motor_x_line_length;
+
+motor_y_line_x0 = motor_y_posx;
+motor_y_line_x1 = motor_y_posx+cos(motor_y_ang)*motor_y_line_length;
+motor_y_line_y0 = motor_y_posy;
+motor_y_line_y1 = motor_y_posy;
+motor_y_line_z0 = motor_y_posz;
+motor_y_line_z1 = motor_y_posz+sin(motor_y_ang)*motor_y_line_length;
+
+% upper frame
+fr_up_x0 = link_y_x0+link_y_offsetx;
+fr_up_x1 = link_y_x0+link_y_offsetx;
+fr_up_y0 = link_x_y0;
+fr_up_y1 = fr_y1+link_x_offsety;
+fr_up_z0 = link_x_z0;
+fr_up_z1 = link_y_z0;
+
+fr_up2_x0 = link_y_x0;
+fr_up2_x1 = link_y_x0;
+fr_up2_y0 = (ee_motor_y/link_y_steps)*link_y_length;
+fr_up2_y1 = (ee_motor_y/link_y_steps)*link_y_length;
+fr_up2_z0 = link_y_z0;
+fr_up2_z1 = link_y_z0+fr_upper2_height;
+
+link_z_steps = link_z_stepspercm*link_z_length*motor_z_step;
+ee_motor_z=(ee_z/link_z_length)*link_z_steps;
+ee_z = fr_height + (ee_motor_z/link_z_steps)*link_z_length;
+motor_z_curstep = mod(ee_motor_z,motor_z_step);
+motor_z_ang = (motor_z_curstep/motor_z_step)*2.0*pi;
+
+link_z_x0 = link_y_x0-link_z_offsetx;
+link_z_x1 = link_z_x0;
+link_z_y0 = fr_up2_y0;
+link_z_y1 = link_z_y0;
+link_z_z0 = fr_height+(ee_motor_z/link_z_steps)*link_z_length;
+link_z_z1 = link_z_z0 + link_z_length;
+
+
+motor_z_posx = link_z_x0;
+motor_z_posy = link_z_y0;
+motor_z_posz = link_z_z1;
+
+motor_z_line_x0 = motor_z_posx;
+motor_z_line_x1 = motor_z_posx+cos(motor_z_ang)*motor_z_line_length;
+motor_z_line_y0 = motor_z_posy;
+motor_z_line_y1 = motor_z_posy+sin(motor_z_ang)*motor_z_line_length;
+motor_z_line_z0 = motor_z_posz;
+motor_z_line_z1 = motor_z_posz;
+
+drawing=[ee_x ee_y ee_z];
+
+
+% Drawing
+
+%initialize
+fig = figure('Name', 'Cartesian Robot - 3 DOF', 'NumberTitle', 'off',...
+              'Position', [5,60,800,940]);
+set(gca, 'drawmode', 'fast');
+set(fig, 'MenuBar', 'none', 'BackingStore', 'off');
+% set(fig, 'BackingStore', 'off');
+plot_main = subplot('Position', [0.05,0.28,0.90,0.70]);
+ 
+axis([x_min x_max y_min y_max z_min z_max]); grid minor; hold on;%axis equal;
+set(gca,'Color',[0.05 0.05 0.13]);
+set(gca,'XColor',[0.1 0.4 0.1]);
+set(gca,'YColor',[0.4 0.1 0.1]);
+set(gca,'ZColor',[0.2 0.2 0.1]); 
+rotate3d(gca,'on');
+set(gcf,'toolbar','figure');
+
+% Frame
+line_framex0 = line('xdata', [fr_x0  fr_x1],'ydata', [fr_y0 fr_y0],'zdata', [fr_height fr_height],'erasemode','normal','LineWidth', 1,'color', 'blue');
+line_framex1 = line('xdata', [fr_x0  fr_x1],'ydata', [fr_y1 fr_y1],'zdata', [fr_height fr_height],'erasemode','normal','LineWidth', 1,'color', 'blue');
+line_framey0 = line('xdata', [fr_x0  fr_x0],'ydata', [fr_y0 fr_y1],'zdata', [fr_height fr_height],'erasemode','normal','LineWidth', 1,'color', 'blue');
+line_framey1 = line('xdata', [fr_x1  fr_x1],'ydata', [fr_y0 fr_y1],'zdata', [fr_height fr_height],'erasemode','normal','LineWidth', 1,'color', 'blue');
+line_frame_leg11 = line('xdata', [fr_x0  fr_x0],'ydata', [fr_y0 fr_y0],'zdata', [-5.0 fr_height],'erasemode','normal','LineWidth', 1,'color', 'blue');
+line_frame_leg12 = line('xdata', [fr_x1  fr_x1],'ydata', [fr_y0 fr_y0],'zdata', [-5.0 fr_height],'erasemode','normal','LineWidth', 1,'color', 'blue');
+line_frame_leg21 = line('xdata', [fr_x0  fr_x0],'ydata', [fr_y1 fr_y1],'zdata', [-5.0 fr_height],'erasemode','normal','LineWidth', 1,'color', 'blue');
+line_frame_leg22 = line('xdata', [fr_x1  fr_x1],'ydata', [fr_y1 fr_y1],'zdata', [-5.0 fr_height],'erasemode','normal','LineWidth', 1,'color', 'blue');
+line_upperframe = line('xdata', [fr_up_x0  fr_up_x1],'ydata', [fr_up_y0  fr_up_y1],'zdata', [fr_up_z1  fr_up_z1],'erasemode','normal','LineWidth', 3,'color', 'blue');
+line_upperframeleg0 = line('xdata', [fr_up_x0  fr_up_x1],'ydata', [fr_up_y0  fr_up_y0],'zdata', [fr_up_z0  fr_up_z1],'erasemode','normal','LineWidth', 3,'color', 'blue');
+line_upperframeleg1 = line('xdata', [fr_up_x0  fr_up_x1],'ydata', [fr_up_y1  fr_up_y1],'zdata', [fr_up_z0  fr_up_z1],'erasemode','normal','LineWidth', 3,'color', 'blue');
+line_upperframe2 = line('xdata', [fr_up2_x0  fr_up2_x1],'ydata', [fr_up2_y0  fr_up2_y1],'zdata', [fr_up2_z0  fr_up2_z1],'erasemode','normal','LineWidth', 3,'color', 'blue');
+
+% Links
+line_link_x = line('xdata', [link_x_x0  link_x_x1],'ydata', [link_x_y0 link_x_y1],'zdata', [link_x_z0 link_x_z1],'erasemode','normal','LineWidth', 1,'color', 'yellow');
+line_link_y = line('xdata', [link_y_x0  link_y_x1],'ydata', [link_y_y0 link_y_y1],'zdata', [link_y_z0 link_y_z1],'erasemode','normal','LineWidth', 1,'color', 'yellow');
+line_link_z = line('xdata', [link_z_x0  link_z_x1],'ydata', [link_z_y0 link_z_y1],'zdata', [link_z_z0 link_z_z1],'erasemode','normal','LineWidth', 1,'color', 'yellow');
+
+% Motors
+line_motor_x = line('xdata', [motor_x_line_x0 motor_x_line_x1],'ydata', [motor_x_line_y0 motor_x_line_y1],'zdata', [motor_x_line_z0 motor_x_line_z1],'erasemode','normal','LineWidth', 1,'color', 'red');
+line_motor_y = line('xdata', [motor_y_line_x0 motor_y_line_x1],'ydata', [motor_y_line_y0 motor_y_line_y1],'zdata', [motor_y_line_z0 motor_y_line_z1],'erasemode','normal','LineWidth', 1,'color', 'red');
+line_motor_z = line('xdata', [motor_z_line_x0 motor_z_line_x1],'ydata', [motor_z_line_y0 motor_z_line_y1],'zdata', [motor_z_line_z0 motor_z_line_z1],'erasemode','normal','LineWidth', 1,'color', 'red');
+
+point_ee = plot3(ee_x,ee_y,ee_z,'r.');
+
+%DRAW = plot3(drawing(:,1),drawing(:,2),drawing(:,3),'g');
+x1 =[0 0];
+y1 =[0 30];
+z1 =[20 20];
+x2 =[0 50];
+y2 =[30 30];
+z2 =[20 20];
+
+DRAW = plot(drawing(:,1),'-.p');
+plot3(x1,y1,z1,'-.r')
+plot3(x2,y2,z2,'-.b')
+
+
+
+% GUI
+
+
+sli_X = uicontrol(fig,'Style','slider','Pos',[70 100 120 17],...
+      'Min',0,'Max',link_x_steps,'SliderStep',[1/200 1/200],...
+      'Val',ee_motor_x,'CallBack',['ee_motor_x=(get(sli_X,''Val''));,'...
+         'set(X_cur,''String'',num2str(ee_motor_x)),','cartes_draw;']);
+sli_Y = uicontrol(fig,'Style','slider','Pos',[270 100 120 17],...
+      'Min',0,'Max',link_y_steps,'SliderStep',[1/200 1/200],...
+      'Val',ee_motor_y,'CallBack',['ee_motor_y=(get(sli_Y,''Val''));,'...
+         'set(Y_cur,''String'',num2str(ee_motor_y)),','cartes_draw;']);
+sli_Z = uicontrol(fig,'Style','slider','Pos',[470 100 120 17],...
+      'Min',0,'Max',link_z_steps,'SliderStep',[1/100 1/100],...
+      'Val',ee_motor_z,'CallBack',['ee_motor_z=(get(sli_Z,''Val''));,'...
+         'set(Z_cur,''String'',num2str(ee_motor_z)),','cartes_draw;']);
+     
+
+ X_min = uicontrol(fig,'Style','text','Pos',[037 100 32 17],'String','0');
+ Y_min = uicontrol(fig,'Style','text','Pos',[237 100 32 17],'String','0');
+ Z_min = uicontrol(fig,'Style','text','Pos',[437 100 32 17],'String','0'); 
+ X_max = uicontrol(fig,'Style','text','Pos',[192 100 40 17],'String',num2str(link_x_steps));
+ Y_max = uicontrol(fig,'Style','text','Pos',[392 100 40 17],'String',num2str(link_y_steps));
+ Z_max = uicontrol(fig,'Style','text','Pos',[592 100 40 17],'String',num2str(link_z_steps));
+
+  
+ X_label = uicontrol(fig,'Style','text','Pos',[60 120 60 17],'String','X:');
+ Y_label = uicontrol(fig,'Style','text','Pos',[260 120 60 17],'String','Y:');
+ Z_label = uicontrol(fig,'Style','text','Pos',[460 120 60 17],'String','Z:');
+ 
+
+ X_cur = uicontrol(fig,'Style','text','Pos',[20 120 40 17],'String',...
+      num2str(get(sli_X,'Value')));
+ Y_cur = uicontrol(fig,'Style','text','Pos',[0 120 40 17],'String',...
+      num2str(get(sli_Y,'Value')));
+ Z_cur = uicontrol(fig,'Style','text','Pos',[0 120 40 17],'String',...
+      num2str(get(sli_Z,'Value')));
+ pbreset = uicontrol(fig,'Style','push','Pos',[20 5 60 44],...
+      'String','RESET','CallBack',[...
+        'set(sli_X,''Value'',0),','set(sli_Y,''Value'',0),','set(sli_Z,''Value'',0),'...
+        'set(X_cur,''String'',''0''),','set(Y_cur,''String'',''0''),','set(Z_cur,''String'',''0''),'...
+        'ee_motor_x = 0; ee_motor_y = 0; ee_motor_z = 0;ee_x=0;ee_y=0;ee_z=0;','drawing=[0 0 fr_height];',...
+        'refresh(fig);cartes_draw;']);
+ 
+%pbdemo = uicontrol(fig,'Style','push','Pos',[300 5 60 44],...
+      %'String','DEMO','CallBack','draw_demo'); 
+</li>
+      <li>VREP - Need Michaels code</li>
       <li>VREP - INSERT VREP</li>
       <li>MATLAB - INSERT MATLAB</li>
     </ul>
